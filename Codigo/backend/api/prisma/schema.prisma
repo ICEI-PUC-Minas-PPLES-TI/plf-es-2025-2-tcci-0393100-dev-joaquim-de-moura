@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  name      String?
+  role      UserRole @default(PASSENGER)
+
+  passwordHash String
+
+  createdAt DateTime @default(now())
+}
+
+model Ride {
+  id              String   @id @default(cuid())
+  passengerId     String
+  driverId        String?
+  status RideStatus @default(OPEN)
+  originLat       Float
+  originLng       Float
+  destLat         Float
+  destLng         Float
+
+  distanceMeters   Int?
+  durationSeconds  Int?
+  estimatedFareCents Int?
+
+  pricingConfigId String?
+  pricingConfig   PricingConfig? @relation(fields: [pricingConfigId], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PricingConfig {
+  id               String   @id @default(cuid())
+  isActive         Boolean  @default(true)
+
+  baseFareCents    Int      @default(500)   // bandeirada
+  perKmCents       Int      @default(200)   // por km
+  perMinuteCents   Int      @default(50)    // por minuto
+  minimumFareCents Int      @default(800)   // mínima
+  bookingFeeCents  Int      @default(0)     // taxa fixa
+  surgeMultiplier  Float    @default(1.0)
+
+  currency         String   @default("BRL")
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // ✅ RELAÇÃO INVERSA (ERA O QUE FALTAVA)
+  rides Ride[]
+}
+
+enum RideStatus {
+  OPEN
+  REQUESTED
+  ACCEPTED
+  IN_PROGRESS
+  FINISHED
+  CANCELED
+}
+
+enum UserRole {
+  PASSENGER
+  DRIVER
+  ADMIN
+}

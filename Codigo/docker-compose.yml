@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: mobu_db
+    environment:
+      POSTGRES_USER: mobu
+      POSTGRES_PASSWORD: mobu123
+      POSTGRES_DB: mobu
+    ports:
+      - "5432:5432"
+    volumes:
+      - mobu_pg:/var/lib/postgresql/data
+
+volumes:
+  mobu_pg:
