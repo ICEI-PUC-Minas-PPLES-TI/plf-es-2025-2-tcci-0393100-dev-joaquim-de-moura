@@ -9,4 +9,11 @@ interface AuthApi {
 
     @POST("auth/register")
     suspend fun register(@Body body: RegisterRequest): AuthResponse
+
+    @POST("auth/register-driver")
+    suspend fun registerDriver(
+        @Body request: DriverRegisterRequest
+    ): DriverRegisterResponse
+
+
 }

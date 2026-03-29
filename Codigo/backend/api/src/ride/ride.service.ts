@@ -85,7 +85,7 @@ export class RideService {
         passengerId: data.passengerId,
         driverId: null,
 
-        status: RideStatus.REQUESTED, // ✅ motorista enxerga aqui
+        status: RideStatus.PENDING_DRIVER, // ✅ motorista enxerga aqui
 
         originLat: data.originLat,
         originLng: data.originLng,
@@ -108,7 +108,7 @@ export class RideService {
   // ✅ motorista vê apenas corridas solicitadas (abertas)
   async findOpen() {
     return this.prisma.ride.findMany({
-      where: { status: RideStatus.REQUESTED },
+      where: { status: RideStatus.PENDING_DRIVER },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -118,7 +118,7 @@ export class RideService {
     const ride = await this.prisma.ride.findUnique({ where: { id: rideId } });
     if (!ride) throw new NotFoundException('Corrida não encontrada');
 
-    if (ride.status !== RideStatus.REQUESTED) {
+    if (ride.status !== RideStatus.PENDING_DRIVER) {
       throw new BadRequestException('Essa corrida não está disponível para aceitar');
     }
 

@@ -344,17 +344,19 @@ fun MapRideScreen(
                 .weight(1f)
                 .fillMaxWidth(),
             cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = true),
-            uiSettings = MapUiSettings(myLocationButtonEnabled = true),
+            properties = MapProperties(
+                isMyLocationEnabled = hasLocationPermission
+            ),
+            uiSettings = MapUiSettings(
+                myLocationButtonEnabled = true
+            ),
             onMapClick = { latLng ->
                 destination = latLng
 
-                // fecha lista/sugestões
                 predictions = emptyList()
                 placesError = null
                 searching = false
 
-                // importante: não estamos digitando, estamos escolhendo no mapa
                 editingDestination = false
                 editingOrigin = false
 
@@ -363,21 +365,20 @@ fun MapRideScreen(
                     destinationAddress = ""
 
                     val addr = getAddressFromLatLng(
-                        apiKey = "AIzaSyDkk3z1jiuVuXYqKoJJExNl6i-7acH4ujM",
+                        apiKey = "SUA_API_KEY_AQUI",
                         lat = latLng.latitude,
                         lng = latLng.longitude
                     )
 
-                    val finalAddr = if (addr.isBlank())
-                        "${latLng.latitude}, ${latLng.longitude}"
-                    else
-                        addr
+                    val finalAddr =
+                        if (addr.isBlank()) "${latLng.latitude}, ${latLng.longitude}"
+                        else addr
 
                     destinationAddress = finalAddr
                     destinationQuery = finalAddr
                 }
-            }        ) {
-            // ✅ Linha da rota
+            }
+        ) {
             if (routePoints.isNotEmpty()) {
                 Polyline(
                     points = routePoints,
@@ -385,7 +386,6 @@ fun MapRideScreen(
                 )
             }
 
-            // ✅ Marcadores
             origin?.let {
                 Marker(state = MarkerState(position = it), title = "Origem")
             }

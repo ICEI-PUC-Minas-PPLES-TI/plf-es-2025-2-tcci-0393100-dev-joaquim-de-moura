@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "br.com.seunome.mobulite"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -47,6 +47,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    buildToolsVersion = "36.1.0"
 }
 
 dependencies {

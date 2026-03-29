@@ -19,21 +19,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import br.com.seunome.mobulite.data.remote.RegisterRequest
+import br.com.seunome.mobulite.data.remote.RetrofitClient
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 @Composable
-fun LoginScreen(
-    onLogin: suspend (phone: String, password: String) -> Unit,
-    onGoToPassengerRegister: () -> Unit,
-    onGoToDriverRegister: () -> Unit
+fun PassengerRegisterScreen(
+    onBackToLogin: () -> Unit,
+    onRegistered: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
+    var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
-    var pass by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var message by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -42,63 +44,73 @@ fun LoginScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = "Entrar",
-            style = MaterialTheme.typography.titleLarge
+            text = "Cadastro de Passageiro",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Nome") },
+            modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = phone,
             onValueChange = { phone = it },
             label = { Text("Telefone") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
-            value = pass,
-            onValueChange = { pass = it },
+            value = password,
+            onValueChange = { password = it },
             label = { Text("Senha") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            modifier = Modifier.fillMaxWidth()
         )
-
-        error?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
 
         Button(
             onClick = {
                 scope.launch {
                     loading = true
-                    error = null
+                    message = null
+
                     try {
-                        onLogin(phone, pass)
+                        RetrofitClient.authApi.register(
+                            RegisterRequest(
+                                phone = phone,
+                                password = password,
+                                name = name,
+                                role = "PASSENGER"
+                            )
+                        )
+
+                        message = "Cadastro realizado com sucesso."
+                        onRegistered()
                     } catch (e: HttpException) {
-                        error = "HTTP ${e.code()} ${e.message()}"
+                        val errorBody = e.response()?.errorBody()?.string()
+                        message = "Erro: HTTP ${e.code()} - ${errorBody ?: e.message()}"
                     } catch (e: Exception) {
-                        error = e.message ?: "Falha no login"
+                        message = "Erro: ${e.message}"
                     } finally {
                         loading = false
                     }
                 }
             },
-            enabled = !loading && phone.isNotBlank() && pass.isNotBlank(),
+            enabled = !loading && name.isNotBlank() && phone.isNotBlank() && password.isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
-            Text(if (loading) "Entrando..." else "Entrar")
+            Text(if (loading) "Cadastrando..." else "Cadastrar como passageiro")
         }
 
-        TextButton(onClick = onGoToPassengerRegister) {
-            Text("Criar conta de passageiro")
+        message?.let {
+            Text(it)
         }
 
-        TextButton(onClick = onGoToDriverRegister) {
-            Text("Quero ser motorista")
+        TextButton(onClick = onBackToLogin) {
+            Text("Voltar para login")
         }
     }
 }

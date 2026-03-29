@@ -23,3 +23,33 @@ data class AuthResponse(
     val user: AuthUser,
     val accessToken: String
 )
+
+
+data class DriverRegisterRequest(
+    val phone: String,
+    val password: String,
+    val name: String,
+    val cnhImageUrl: String?,
+    val cnhNumber: String?,
+    val cnhCategory: String?,
+    val hasEar: Boolean
+)
+
+data class DriverRegisterResponse(
+    val user: RegisteredUser,
+    val accessToken: String,
+    val message: String? = null
+)
+
+data class RegisteredUser(
+    val id: String,
+    val phone: String,
+    val name: String?,
+    val role: String,
+    val createdAt: String
+)
+
+data class RegisterResponse(
+    val user: RegisteredUser,
+    val accessToken: String
+)

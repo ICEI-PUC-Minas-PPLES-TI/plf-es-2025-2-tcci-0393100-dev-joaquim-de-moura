@@ -10,13 +10,20 @@ object RetrofitClient {
 
     private const val BASE_URL = "http://10.0.2.2:3000/"
 
-    @Volatile private var token: String? = null
+    @Volatile
+    private var token: String? = null
 
     private lateinit var retrofit: Retrofit
+
     lateinit var api: ApiService
     lateinit var authApi: AuthApi
 
+    val driverApi: DriverApi by lazy {
+        retrofit.create(DriverApi::class.java)
+    }
+
     fun init(context: Context) {
+
         val client = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor { token })
             .connectTimeout(20, TimeUnit.SECONDS)
