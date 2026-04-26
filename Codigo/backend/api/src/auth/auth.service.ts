@@ -158,6 +158,7 @@ export class AuthService {
         cnhNumber: dto.cnhNumber,
         cnhCategory: dto.cnhCategory,
         hasEar: dto.hasEar,
+        pixQrPayload: dto.pixQrPayload ?? null,
         approvalStatus: DriverApprovalStatus.PENDING,
       },
     });

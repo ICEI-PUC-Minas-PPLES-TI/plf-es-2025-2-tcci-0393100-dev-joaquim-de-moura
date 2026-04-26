@@ -33,3 +33,27 @@ data class DriverMeResponse(
     val approvalStatus: String,
     val rejectionReason: String?
 )
+
+data class PassengerSummary(
+    val id: String,
+    val name: String?,
+    val phone: String
+)
+
+data class DriverRideResponse(
+    val rideId: String,
+    val passengerId: String,
+    val passengerName: String?,
+    val passengerPhone: String?,
+    val originLat: Double,
+    val originLng: Double,
+    val destLat: Double,
+    val destLng: Double,
+    val originAddress: String?,
+    val destinationAddress: String?,
+    val price: Int?,
+    val distanceMeters: Int?,
+    val durationSeconds: Int?,
+    val status: String,
+    val driverPixQrPayload: String? = null
+)

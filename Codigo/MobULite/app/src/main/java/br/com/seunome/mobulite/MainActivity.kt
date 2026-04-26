@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -34,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import br.com.seunome.mobulite.data.local.SessionStore
 import br.com.seunome.mobulite.data.remote.CreateRideRequest
 import br.com.seunome.mobulite.data.remote.EstimateRideRequest
@@ -43,13 +46,16 @@ import br.com.seunome.mobulite.data.remote.RetrofitClient
 import br.com.seunome.mobulite.ui.DriverRegisterScreen
 import br.com.seunome.mobulite.ui.DriverScreen
 import br.com.seunome.mobulite.ui.LoginScreen
+import br.com.seunome.mobulite.ui.PassengerRegisterScreen
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.layout.fillMaxWidth
-import br.com.seunome.mobulite.ui.PassengerRegisterScreen
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LinearProgressIndicator
+import br.com.seunome.mobulite.data.remote.UpdateStatusRequest
+import br.com.seunome.mobulite.ui.PassengerRideStatusCard
+import br.com.seunome.mobulite.ui.PassengerRideUiState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -151,6 +157,7 @@ fun App() {
                     }
                 )
             }
+
             AuthRoute.PASSENGER_REGISTER -> {
                 PassengerRegisterScreen(
                     onBackToLogin = {
@@ -217,15 +224,17 @@ fun PassengerScreen(
     var estimating by remember { mutableStateOf(false) }
     var estimateError by remember { mutableStateOf<String?>(null) }
 
-    var creating by remember { mutableStateOf(false) }
-    var msg by remember { mutableStateOf("") }
+    var rideUiState by remember { mutableStateOf(PassengerRideUiState.IDLE) }
+    var currentRideId by remember { mutableStateOf<String?>(null) }
+    var acceptedDriverName by remember { mutableStateOf<String?>(null) }
+    var rideError by remember { mutableStateOf<String?>(null) }
 
     var menuOpen by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Passageiro") },
+                title = { Text("MobU") },
                 actions = {
                     IconButton(onClick = { menuOpen = true }) {
                         Icon(
@@ -257,12 +266,20 @@ fun PassengerScreen(
         ) {
             MapRideScreen(
                 modifier = Modifier.weight(1f),
-            ) { o, d, oText, dText ->
-                origin = o
-                destination = d
-                originText = oText
-                destText = dText
-            }
+                onPointsChanged = { o, d, oText, dText ->
+                    origin = o
+                    destination = d
+                    originText = oText
+                    destText = dText
+                },
+                onRideStateChanged = { uiState, rideId, driverName, errorMessage ->
+                    rideUiState = uiState
+                    currentRideId = rideId
+                    acceptedDriverName = driverName
+                    rideError = errorMessage
+                }
+
+            )
 
             LaunchedEffect(origin, destination) {
                 val o = origin
@@ -295,55 +312,63 @@ fun PassengerScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
             ) {
                 Column(
-                    Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (estimating) Text("Calculando preço...")
-                    estimateError?.let { Text("Erro: $it") }
+                    Text(
+                        text = "Sua corrida",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    if (estimating) {
+                        Text("Calculando estimativa...")
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
+
+                    estimateError?.let {
+                        Text(
+                            text = "Erro: $it",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
 
                     estimate?.let { est ->
                         val price = est.estimatedFareCents / 100.0
-                        Text("Estimativa: R$ ${"%.2f".format(price)}")
-                    }
 
-                    Button(
-                        enabled = origin != null && destination != null && estimate != null && !creating,
-                        onClick = {
-                            val o = origin ?: return@Button
-                            val d = destination ?: return@Button
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(
+                                text = "Preço estimado",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
 
-                            scope.launch {
-                                creating = true
-                                msg = try {
-                                    val ride = RetrofitClient.api.createRide(
-                                        CreateRideRequest(
-                                            passengerId = "passenger_1",
-                                            originLat = o.latitude,
-                                            originLng = o.longitude,
-                                            destLat = d.latitude,
-                                            destLng = d.longitude
-                                        )
-                                    )
-                                    "Corrida criada: ${ride.id}"
-                                } catch (e: Exception) {
-                                    "Erro ao criar: ${e.message}"
-                                } finally {
-                                    creating = false
-                                }
+                            Text(
+                                text = "R$ ${"%.2f".format(price)}",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            est.distanceMeters?.let { distance ->
+                                Text(
+                                    text = "Distância: %.1f km".format(distance / 1000.0),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
                             }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                    ) {
-                        Text(if (creating) "Solicitando..." else "Solicitar corrida")
-                    }
 
-                    if (msg.isNotBlank()) Text(msg)
+                            est.durationSeconds?.let { duration ->
+                                Text(
+                                    text = "Tempo estimado: ${duration / 60} min",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

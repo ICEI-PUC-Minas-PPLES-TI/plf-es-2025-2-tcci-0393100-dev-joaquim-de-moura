@@ -1,6 +1,12 @@
 package br.com.seunome.mobulite.data.remote
 
 import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.PATCH
+
 
 interface ApiService {
     @POST("auth/register")
@@ -32,4 +38,15 @@ interface ApiService {
         @Path("id") id: String,
         @Body body: UpdateStatusRequest
     ): Ride
+
+    @GET("rides/{id}")
+    suspend fun getRideById(
+        @Path("id") rideId: String
+    ): RideStatusResponse
+
+    @PATCH("rides/{id}/status")
+    suspend fun updateRideStatus(
+        @Path("id") rideId: String,
+        @Body body: UpdateStatusRequest
+    ): RideStatusResponse
 }

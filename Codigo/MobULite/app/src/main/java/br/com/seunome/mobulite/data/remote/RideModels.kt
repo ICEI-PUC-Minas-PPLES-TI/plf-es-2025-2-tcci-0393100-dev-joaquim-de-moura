@@ -1,13 +1,5 @@
 package br.com.seunome.mobulite.data.remote
 
-data class CreateRideRequest(
-    val passengerId: String,
-    val originLat: Double,
-    val originLng: Double,
-    val destLat: Double,
-    val destLng: Double
-)
-
 data class AcceptRideRequest(
     val driverId: String
 )

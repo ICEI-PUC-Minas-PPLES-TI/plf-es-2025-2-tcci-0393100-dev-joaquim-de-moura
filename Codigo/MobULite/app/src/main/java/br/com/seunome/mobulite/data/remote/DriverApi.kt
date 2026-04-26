@@ -4,6 +4,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.PATCH
+
 
 interface DriverApi {
 
@@ -27,4 +29,17 @@ interface DriverApi {
 
     @GET("driver/me")
     suspend fun getDriverMe(): DriverMeResponse
+
+    @GET("driver/rides/current")
+    suspend fun getCurrentRide(): DriverRideResponse?
+
+    @PATCH("driver/rides/{rideId}/start")
+    suspend fun startRide(
+        @Path("rideId") rideId: String
+    ): DriverRideResponse
+
+    @PATCH("driver/rides/{rideId}/finish")
+    suspend fun finishRide(
+        @Path("rideId") rideId: String
+    ): DriverRideResponse
 }
