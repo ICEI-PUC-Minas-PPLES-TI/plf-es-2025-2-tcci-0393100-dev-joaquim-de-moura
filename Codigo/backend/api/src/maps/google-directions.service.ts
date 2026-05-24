@@ -4,6 +4,7 @@ import axios from 'axios';
 type DirectionsResult = {
   distanceMeters: number;
   durationSeconds: number;
+  encodedPolyline: string;
 };
 
 @Injectable()
@@ -30,6 +31,7 @@ export class GoogleDirectionsService {
     return {
       distanceMeters: leg.distance.value,
       durationSeconds: leg.duration.value,
+      encodedPolyline: data.routes[0].overview_polyline.points as string,
     };
   }
 }

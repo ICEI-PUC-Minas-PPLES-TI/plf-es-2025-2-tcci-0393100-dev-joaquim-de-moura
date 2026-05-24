@@ -6,8 +6,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".MobUApplication"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -20,7 +25,8 @@
         tools:targetApi="31">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDkk3z1jiuVuXYqKoJJExNl6i-7acH4ujM"/>
+            android:value="${MAPS_API_KEY}"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,10 +34,30 @@
             android:theme="@style/Theme.MobULite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Driver: shares live location and receives ride offers -->
+        <service
+            android:name=".service.DriverLocationForegroundService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
+
+        <!-- Passenger: maintains WebSocket for real-time ride status updates -->
+        <service
+            android:name=".service.PassengerRideForegroundService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
+
+        <!-- Firebase Cloud Messaging -->
+        <service
+            android:name=".service.MobUFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

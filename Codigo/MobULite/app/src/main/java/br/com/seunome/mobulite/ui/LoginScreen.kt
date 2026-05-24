@@ -43,9 +43,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import br.com.seunome.mobulite.R
+import br.com.seunome.mobulite.ui.theme.AppLilacSoft
 import br.com.seunome.mobulite.ui.formatPhoneBr
 import br.com.seunome.mobulite.ui.onlyDigits
 
@@ -54,21 +56,23 @@ import br.com.seunome.mobulite.ui.onlyDigits
 fun LoginScreen(
     onLogin: suspend (phone: String, password: String) -> Unit,
     onGoToPassengerRegister: () -> Unit,
-    onGoToDriverRegister: () -> Unit
+    onGoToDriverRegister: () -> Unit,
+    onForgotPassword: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
 
-    var phone by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf(textFieldValueAtEnd("")) }
     var pass by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
 
-    val canLogin = !loading && phone.isNotBlank() && pass.isNotBlank()
+    val canLogin = !loading && phone.text.isNotBlank() && pass.isNotBlank()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppLilacSoft)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 24.dp, vertical = 20.dp),
@@ -125,7 +129,7 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = {
-                        phone = formatPhoneBr(it)
+                        phone = maskedTextFieldValue(it, ::formatPhoneBr)
                     },
                     label = { Text("Telefone") },
                     leadingIcon = {
@@ -186,7 +190,12 @@ fun LoginScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                TextButton(
+                    onClick = onForgotPassword,
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Esqueci a senha", style = MaterialTheme.typography.bodySmall)
+                }
 
                 Button(
                     onClick = {
@@ -194,7 +203,7 @@ fun LoginScreen(
                             loading = true
                             error = null
                             try {
-                                onLogin(onlyDigits(phone), pass)
+                                onLogin(onlyDigits(phone.text), pass)
                             } catch (e: HttpException) {
                                 error = "HTTP ${e.code()} ${e.message()}"
                             } catch (e: Exception) {

@@ -1,7 +1,18 @@
 package br.com.seunome.mobulite.ui
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+
 fun onlyDigits(value: String): String {
     return value.filter { it.isDigit() }
+}
+
+fun textFieldValueAtEnd(value: String): TextFieldValue {
+    return TextFieldValue(value, selection = TextRange(value.length))
+}
+
+fun maskedTextFieldValue(value: TextFieldValue, formatter: (String) -> String): TextFieldValue {
+    return textFieldValueAtEnd(formatter(value.text))
 }
 
 fun formatPhoneBr(value: String): String {

@@ -1,6 +1,7 @@
 package br.com.seunome.mobulite.data.remote
 
 import retrofit2.http.Body
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 
 interface AuthApi {
@@ -15,5 +16,6 @@ interface AuthApi {
         @Body request: DriverRegisterRequest
     ): DriverRegisterResponse
 
-
+    @PATCH("auth/fcm-token")
+    suspend fun saveFcmToken(@Body body: FcmTokenRequest): FcmTokenResponse
 }

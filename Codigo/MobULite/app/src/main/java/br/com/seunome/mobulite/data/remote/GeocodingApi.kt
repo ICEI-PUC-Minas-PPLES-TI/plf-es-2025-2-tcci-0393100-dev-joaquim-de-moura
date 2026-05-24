@@ -19,9 +19,9 @@ suspend fun getAddressFromLatLng(
     val response = URL(url).readText()
     val json = JSONObject(response)
 
-    val results = json.getJSONArray("results")
+    val results = json.optJSONArray("results")
 
-    if (results.length() == 0)
+    if (results == null || results.length() == 0)
         return@withContext "Endereço não encontrado"
 
     results

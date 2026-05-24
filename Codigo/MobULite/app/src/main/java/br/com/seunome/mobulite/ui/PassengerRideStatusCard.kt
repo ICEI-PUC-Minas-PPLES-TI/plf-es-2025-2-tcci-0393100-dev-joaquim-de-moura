@@ -68,6 +68,22 @@ fun PassengerRideStatusCard(
                     }
                 }
 
+                PassengerRideUiState.DRIVER_ARRIVING -> {
+                    Text(
+                        text = "Motorista chegando",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text("O motorista está a caminho do seu local de embarque.")
+                }
+
+                PassengerRideUiState.DRIVER_ARRIVED -> {
+                    Text(
+                        text = "Motorista chegou!",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text("O motorista está no local. Dirija-se ao veículo.")
+                }
+
                 PassengerRideUiState.IN_PROGRESS -> {
                     Text(
                         text = "Corrida em andamento",
@@ -124,7 +140,8 @@ fun PassengerRideStatusCard(
                 onCancelRide?.let {
                     OutlinedButton(
                         onClick = it,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp)
                     ) {
                         Text("Cancelar corrida")
                     }
@@ -138,7 +155,8 @@ fun PassengerRideStatusCard(
                 onClose?.let {
                     Button(
                         onClick = it,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp)
                     ) {
                         Text("Fechar")
                     }

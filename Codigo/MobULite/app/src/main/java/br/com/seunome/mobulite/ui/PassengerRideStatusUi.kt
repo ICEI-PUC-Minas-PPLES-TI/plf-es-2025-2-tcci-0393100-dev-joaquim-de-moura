@@ -5,6 +5,8 @@ enum class PassengerRideUiState {
     REQUESTING,
     SEARCHING_DRIVER,
     DRIVER_ACCEPTED,
+    DRIVER_ARRIVING,
+    DRIVER_ARRIVED,
     IN_PROGRESS,
     FINISHED,
     CANCELED,

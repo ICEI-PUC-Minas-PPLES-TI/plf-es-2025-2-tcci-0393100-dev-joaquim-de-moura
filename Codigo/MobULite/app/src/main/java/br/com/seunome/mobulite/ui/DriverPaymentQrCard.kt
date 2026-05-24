@@ -1,36 +1,56 @@
 package br.com.seunome.mobulite.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AssistChip
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import br.com.seunome.mobulite.data.remote.DriverRideResponse
+import br.com.seunome.mobulite.ui.theme.AppGreen
+import br.com.seunome.mobulite.ui.theme.AppGreenDark
+import br.com.seunome.mobulite.ui.theme.AppGreenLight
+import br.com.seunome.mobulite.ui.theme.AppPurple
+import br.com.seunome.mobulite.ui.theme.AppPurpleLight
+import br.com.seunome.mobulite.ui.theme.AppVioletDark
+import br.com.seunome.mobulite.ui.theme.Slate100
+import br.com.seunome.mobulite.ui.theme.Slate50
+import br.com.seunome.mobulite.ui.theme.Slate500
+import br.com.seunome.mobulite.ui.theme.Slate900
 
 @Composable
 fun DriverPaymentQrCard(
     ride: DriverRideResponse,
-    qrPayload: String,
     paymentMethod: String,
-    onClose: () -> Unit
+    onClose: () -> Unit,
 ) {
     val price = (ride.price ?: 0) / 100.0
     val distanceKm = (ride.distanceMeters ?: 0) / 1000.0
@@ -40,111 +60,170 @@ fun DriverPaymentQrCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Column(modifier = Modifier.fillMaxWidth()) {
+
+            // ── Green gradient success header ──────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(AppPurple, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .padding(horizontal = 24.dp, vertical = 24.dp)
             ) {
-                Column {
-                    Text(
-                        text = "Recibo da corrida",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = "Pagamento confirmado",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    AssistChip(
-                        onClick = {},
-                        label = { Text(paymentMethod) }
-                    )
-
-                    IconButton(onClick = onClose) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Fechar recibo"
+                            Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(40.dp)
                         )
                     }
+                    Text(
+                        "Pagamento confirmado!",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        "R$ %.2f".format(price),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = Color.White.copy(alpha = 0.2f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Icon(
+                                if (isPix) Icons.Default.Payments else Icons.Default.AttachMoney,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Text(
+                                if (isPix) "Pix" else "Dinheiro",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+
+                // Close button top-right
+                IconButton(
+                    onClick = onClose,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(36.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Fechar",
+                        tint = Color.White.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
 
-            HorizontalDivider()
+            // ── Receipt details ────────────────────────────────────────────
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    "Resumo da corrida",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Slate500,
+                    fontWeight = FontWeight.Medium
+                )
 
-            Text(
-                text = "Valor total",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                // Stats chips
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Surface(shape = RoundedCornerShape(50), color = AppPurpleLight) {
+                        Text(
+                            "%.1f km".format(distanceKm),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = AppVioletDark,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Surface(shape = RoundedCornerShape(50), color = AppPurpleLight) {
+                        Text(
+                            "$minutes min",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = AppVioletDark,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
 
-            Text(
-                text = "R$ %.2f".format(price),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+                HorizontalDivider(color = Slate100)
 
-            HorizontalDivider()
+                ReceiptInfoRow("Passageiro", ride.passengerName ?: "Não informado")
 
-            InfoRow("Passageiro", ride.passengerName ?: "Não informado")
-            InfoRow("Telefone", ride.passengerPhone ?: "Não informado")
-            InfoRow("Origem", ride.originAddress ?: "${ride.originLat}, ${ride.originLng}")
-            InfoRow("Destino", ride.destinationAddress ?: "${ride.destLat}, ${ride.destLng}")
-            InfoRow("Distância", "%.1f km".format(distanceKm))
-            InfoRow("Tempo estimado", "$minutes min")
+                if (!ride.passengerPhone.isNullOrBlank()) {
+                    ReceiptInfoRow("Telefone", ride.passengerPhone)
+                }
 
-            HorizontalDivider()
+                if (!ride.originAddress.isNullOrBlank()) {
+                    ReceiptInfoRow("Origem", ride.originAddress)
+                }
 
-            Text(
-                text = if (isPix) {
-                    "Pagamento confirmado via Pix."
-                } else {
-                    "Pagamento recebido em dinheiro."
-                },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+                if (!ride.destinationAddress.isNullOrBlank()) {
+                    ReceiptInfoRow("Destino", ride.destinationAddress)
+                }
 
-
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(Modifier.height(4.dp))
+            }
         }
     }
 }
 
 @Composable
-private fun InfoRow(
-    label: String,
-    value: String
-) {
+private fun ReceiptInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
     ) {
         Text(
-            text = label,
+            label,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
+            color = Slate500,
+            modifier = Modifier.weight(0.9f)
         )
-
         Text(
-            text = value,
+            value,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium,
-            modifier = Modifier.weight(1.4f)
+            color = Slate900,
+            modifier = Modifier.weight(1.4f),
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

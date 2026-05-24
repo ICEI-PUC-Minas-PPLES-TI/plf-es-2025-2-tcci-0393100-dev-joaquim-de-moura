@@ -11,5 +11,6 @@ data class EstimateRideResponse(
     val distanceMeters: Int,
     val durationSeconds: Int,
     val estimatedFareCents: Int,
+    val encodedPolyline: String? = null,
     val currency: String? = "BRL"
 )

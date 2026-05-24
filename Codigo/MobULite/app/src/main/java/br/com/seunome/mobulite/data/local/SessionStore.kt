@@ -15,17 +15,38 @@ class SessionStore(private val context: Context) {
         private val KEY_TOKEN = stringPreferencesKey("token")
         private val KEY_ROLE = stringPreferencesKey("role")
         private val KEY_USER_ID = stringPreferencesKey("userId")
+        private val KEY_PENDING_RIDE_ID = stringPreferencesKey("pendingRideId")
+        private val KEY_PROFILE_PHOTO_PATH = stringPreferencesKey("profilePhotoPath")
     }
 
     val tokenFlow: Flow<String?> = context.dataStore.data.map { it[KEY_TOKEN] }
     val roleFlow: Flow<String?> = context.dataStore.data.map { it[KEY_ROLE] }
     val userIdFlow: Flow<String?> = context.dataStore.data.map { it[KEY_USER_ID] }
 
+    // Persists the active ride ID across crashes so it can be canceled on next launch
+    val pendingRideIdFlow: Flow<String?> = context.dataStore.data.map { it[KEY_PENDING_RIDE_ID] }
+
+    val profilePhotoPathFlow: Flow<String?> = context.dataStore.data.map { it[KEY_PROFILE_PHOTO_PATH] }
+
     suspend fun saveSession(token: String, role: String, userId: String? = null) {
         context.dataStore.edit { prefs ->
             prefs[KEY_TOKEN] = token
             prefs[KEY_ROLE] = role
             if (userId != null) prefs[KEY_USER_ID] = userId
+        }
+    }
+
+    suspend fun savePendingRideId(id: String?) {
+        context.dataStore.edit { prefs ->
+            if (id != null) prefs[KEY_PENDING_RIDE_ID] = id
+            else prefs.remove(KEY_PENDING_RIDE_ID)
+        }
+    }
+
+    suspend fun saveProfilePhotoPath(path: String?) {
+        context.dataStore.edit { prefs ->
+            if (path != null) prefs[KEY_PROFILE_PHOTO_PATH] = path
+            else prefs.remove(KEY_PROFILE_PHOTO_PATH)
         }
     }
 

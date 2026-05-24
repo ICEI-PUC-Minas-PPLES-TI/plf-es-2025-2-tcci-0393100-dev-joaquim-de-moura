@@ -25,5 +25,8 @@ export class RegisterDriverDto {
 
   @IsBoolean()
   hasEar: boolean;
+
+  @IsOptional()
+  @IsString()
   pixQrPayload?: string;
 }

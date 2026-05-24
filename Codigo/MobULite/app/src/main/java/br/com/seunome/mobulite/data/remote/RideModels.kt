@@ -5,7 +5,8 @@ data class AcceptRideRequest(
 )
 
 data class UpdateStatusRequest(
-    val status: String
+    val status: String,
+    val cancelReason: String? = null
 )
 
 data class Ride(
@@ -19,3 +20,33 @@ data class Ride(
     val status: String,
     val createdAt: String
 )
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+data class ChatMessage(
+    val id: String,
+    val rideId: String,
+    val senderId: String,
+    val senderRole: String, // "PASSENGER" | "DRIVER"
+    val content: String,
+    val sentAt: String,
+    val readAt: String? = null
+)
+
+data class SendMessageRequest(
+    val content: String
+)
+
+// ─── Coupon ───────────────────────────────────────────────────────────────────
+
+data class ValidateCouponRequest(val code: String)
+
+data class CouponValidationResponse(
+    val valid: Boolean,
+    val code: String,
+    val discountPercent: Int? = null,
+    val discountCents: Int? = null,
+    val description: String? = null
+)
+
+
