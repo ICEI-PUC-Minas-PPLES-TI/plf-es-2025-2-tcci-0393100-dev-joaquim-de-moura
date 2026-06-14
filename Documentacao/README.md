@@ -6,6 +6,8 @@ Este diretório contém a documentação formal do sistema MobU produzida ao lon
 
 - **`DocumentacaoDeProjeto.pdf`** — Versão inicial da documentação, cobrindo as seções de requisitos, casos de uso, modelos de domínio e diagramas UML produzidos nas primeiras entregas.
 
+- **`DocumentacaoDeProjetoAtualizada.pdf`** — Versão intermediária da documentação, contemplando correções parciais e ajustes realizados após as entregas, incluindo revisões do sistema.
+
 - **`DocumentacaoDeProjetoFinal.pdf`** — Versão final completa da documentação, incorporando todos os ajustes realizados ao longo do desenvolvimento, os resultados de testes e as seções de Trabalhos Futuros e Post-mortem.
 
 ## Conteúdo da documentação final
