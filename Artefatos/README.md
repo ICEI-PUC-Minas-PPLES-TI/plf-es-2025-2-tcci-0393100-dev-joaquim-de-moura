@@ -43,7 +43,10 @@ Este diretório reúne os artefatos acadêmicos produzidos ao longo do desenvolv
 - `DocumentacaoDeProjeto.pdf` — Documentação de projeto (versão A5)
 
 ### `/A7` — Entrega Pré-Banca
-- (conteúdo da entrega A7)
+- `DocumentacaoDeProjeto.pdf` - Documentação de projeto (versão A7)
+
+### `/TCC2` — Imagens Atualizadas
+-  Imagens Atualizadas
 
 ### Raiz
 - `Projeto-PreBanca_Atividade_A6.pdf` — Documento de projeto pré-banca (A6)
