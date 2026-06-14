@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MobU — Dashboard Administrativo
 
-## Getting Started
+Painel web de administração do sistema MobU, desenvolvido com **Next.js** e **TypeScript**.
 
-First, run the development server:
+## Tecnologias
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- [Next.js 16](https://nextjs.org/) — framework React
+- [Leaflet](https://leafletjs.com/) — mapas interativos ao vivo
+- [jsPDF + AutoTable](https://github.com/parallax/jsPDF) — exportação de relatórios em PDF
+- [JWT](https://jwt.io/) — autenticação via token
+
+---
+
+## Pré-requisitos
+
+- Node.js 20+
+- Backend MobU em execução (porta 3000)
+
+---
+
+## Configuração
+
+Por padrão, o dashboard conecta ao backend em `http://localhost:3000`. Para apontar para outro endereço, crie um arquivo `.env.local`:
+
+```
+NEXT_PUBLIC_API_URL=http://SEU_BACKEND:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Executando
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+O painel estará disponível em `http://localhost:3001`.
 
-To learn more about Next.js, take a look at the following resources:
+**Login padrão** (após executar o seed do backend):
+- Telefone: `31999000000`
+- Senha: `Senha@123`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Funcionalidades
 
-## Deploy on Vercel
+| Seção | Descrição |
+|---|---|
+| **Operação ao vivo** | Mapa com motoristas online e corridas ativas em tempo real via WebSocket |
+| **Motoristas** | Listagem, aprovação e rejeição de cadastros com visualização de CNH |
+| **Passageiros** | Listagem com histórico de corridas e chamados |
+| **Corridas** | Listagem com filtros por status e método de pagamento |
+| **Financeiro** | Resumo de receita, saldo por motorista, liquidações e solicitações de pagamento |
+| **Tarifas** | Criação e ativação de configurações de precificação por região |
+| **Regiões** | Definição de áreas de operação com raio em metros |
+| **Cupons** | Criação e gerenciamento de cupons de desconto |
+| **Suporte** | Atendimento a chamados abertos por passageiros e motoristas |
+| **Relatórios** | Estatísticas operacionais com filtro de período e exportação em PDF |
+| **Configurações** | Ajuste de parâmetros do sistema (limite de débito, chave PIX da plataforma) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Build de produção
+
+```bash
+npm run build
+npm run start
+```

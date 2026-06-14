@@ -1,98 +1,141 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# MobU — Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST e WebSocket do sistema MobU, desenvolvida com **NestJS**, **Prisma ORM** e **PostgreSQL**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tecnologias
 
-## Description
+- [NestJS](https://nestjs.com/) — framework Node.js modular
+- [Prisma](https://www.prisma.io/) — ORM com migrações versionadas
+- [PostgreSQL 16](https://www.postgresql.org/) — banco de dados relacional
+- [JWT](https://jwt.io/) — autenticação stateless
+- [WebSocket (ws)](https://github.com/websockets/ws) — comunicação em tempo real
+- [Firebase Admin SDK](https://firebase.google.com/) — notificações push (FCM)
+- [Google Maps Directions API](https://developers.google.com/maps) — cálculo de rotas
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## Pré-requisitos
+
+- Node.js 20+
+- Docker e Docker Compose
+- Chave de API do Google Maps (servidor)
+- Projeto Firebase com Cloud Messaging habilitado
+
+---
+
+## Configuração do ambiente
 
 ```bash
-$ npm install
+cp .env.example .env
 ```
 
-## Compile and run the project
+Preencha as variáveis no `.env`:
+
+| Variável | Descrição |
+|---|---|
+| `DATABASE_URL` | URL de conexão com o PostgreSQL |
+| `JWT_SECRET` | Segredo para assinatura dos tokens JWT |
+| `GOOGLE_MAPS_API_KEY` | Chave da API do Google Maps (servidor) |
+| `CORS_ORIGIN` | Origens permitidas pelo CORS (ex: `http://localhost:3001`) |
+| `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | Configuração de e-mail para verificação |
+
+Adicione também o arquivo `firebase-service-account.json` na raiz desta pasta com as credenciais do Firebase Admin SDK.
+
+---
+
+## Executando
 
 ```bash
-# development
-$ npm run start
+# Sobe o banco de dados (da pasta Codigo/)
+docker compose up -d
 
-# watch mode
-$ npm run start:dev
+# Instala dependências
+npm install
 
-# production mode
-$ npm run start:prod
+# Aplica as migrações no banco
+npx prisma migrate deploy
+
+# Popula dados iniciais (admin + tarifa padrão)
+npx prisma db seed
+
+# Modo desenvolvimento (hot reload)
+npm run start:dev
+
+# Modo produção
+npm run build
+npm run start:prod
 ```
 
-## Run tests
+A API ficará disponível em `http://localhost:3000`.
+
+---
+
+## Testes
 
 ```bash
-# unit tests
-$ npm run test
+# Testes unitários
+npm run test
 
-# e2e tests
-$ npm run test:e2e
+# Testes de integração
+npm run test:integration
 
-# test coverage
-$ npm run test:cov
+# Testes de aceitação (TA1–TA15)
+npm run test:acceptance
+
+# Cobertura
+npm run test:cov
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Módulos
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+| Módulo | Responsabilidade |
+|---|---|
+| `auth` | Registro, login, verificação de telefone/e-mail, recuperação de senha |
+| `ride` | Criação, estado, pagamento e segurança das corridas |
+| `driver` | Perfil, status online, localização, histórico e financeiro do motorista |
+| `admin` | Aprovação de motoristas, tarifas, regiões, relatórios e painel ao vivo |
+| `payment` | Confirmação de pagamento e atualização de status |
+| `review` | Avaliações de motoristas por passageiros |
+| `chat` | Mensagens entre passageiro e motorista durante a corrida |
+| `support` | Chamados de suporte |
+| `realtime` | WebSocket com autenticação JWT e assinaturas por corrida |
+| `notification` | Push notifications via Firebase Cloud Messaging |
+| `maps` | Integração com Google Directions API |
+
+---
+
+## Endpoints principais
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/auth/register` | Cadastro de passageiro |
+| POST | `/auth/register-driver` | Cadastro de motorista |
+| POST | `/auth/login` | Login (retorna JWT) |
+| GET | `/auth/me` | Perfil do usuário autenticado |
+| POST | `/rides/estimate` | Estimativa de tarifa e rota |
+| POST | `/rides` | Solicitar corrida |
+| GET | `/rides/:id` | Detalhes da corrida |
+| POST | `/driver/rides/:id/accept` | Motorista aceita corrida |
+| PATCH | `/driver/rides/:id/finish` | Motorista finaliza corrida |
+| GET | `/admin/live` | Operação ao vivo (corridas e motoristas) |
+| GET | `/admin/reports` | Relatórios operacionais |
+
+WebSocket disponível em `ws://localhost:3000/ws?token=<JWT>`.
+
+---
+
+## Banco de dados
+
+As migrações ficam em `prisma/migrations/`. Para criar uma nova migração após alterar o schema:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma migrate dev --name descricao_da_mudanca
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Para visualizar o banco graficamente:
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+npx prisma studio
+```
