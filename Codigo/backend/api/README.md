@@ -73,10 +73,10 @@ A API ficará disponível em `http://localhost:3000`.
 ## Testes
 
 ```bash
-# Testes unitários
+# Testes unitários (TU1–TU9)
 npm run test
 
-# Testes de integração
+# Testes de integração (TI1–TI6)
 npm run test:integration
 
 # Testes de aceitação (TA1–TA15)
@@ -85,6 +85,17 @@ npm run test:acceptance
 # Cobertura
 npm run test:cov
 ```
+
+### Cobertura de testes
+
+| Suite | Identificadores | Arquivo |
+|---|---|---|
+| Unitários | TU1–TU4 | `src/auth/auth.service.spec.ts` |
+| Unitários | TU5 | `src/driver/driver.service.spec.ts` |
+| Unitários | TU6–TU9 | `src/ride/ride.service.spec.ts` |
+| Integração | TI1–TI6 | `test/integration/` |
+| Aceitação | TA1–TA15 | `test/acceptance/` |
+| Limitações conhecidas | KL-01–KL-05 | `src/known-limitations.spec.ts` |
 
 ---
 
