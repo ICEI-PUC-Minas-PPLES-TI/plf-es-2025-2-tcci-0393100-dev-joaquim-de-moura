@@ -14,4 +14,4 @@ Este diretório contém os vídeos de demonstração produzidos ao longo das ent
 
 - **`Vídeo Entrega 4 TCC2 Feature Cancelamento.mp4`** — Demonstração específica do fluxo de cancelamento de corrida pelo passageiro e reencaminhamento para outro motorista.
 
-- **`Video-PreBanca_Atividade_A6.mp4`** — Vídeo completo da apresentação pré-banca, demonstrando o sistema integrado em funcionamento.
+- **`Video-PreBanca_Atividade_A6.mp4`** — Vídeo completo da apresentação pré-banca.
