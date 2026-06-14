@@ -84,16 +84,25 @@ export class ReviewService {
       throw new BadRequestException('Essa corrida já foi avaliada');
     }
 
-    const review = await this.prisma.review.create({
-      data: {
-        rideId,
-        passengerId: userId,
-        driverId: ride.driverId,
-        rating: dto.rating,
-        comment: dto.comment?.trim() || null,
-      },
-      include: this.include(),
-    });
+    // [KL-05 fix] Encapsula P2002 (unique constraint em rideId) para evitar vazamento de detalhes internos
+    let review;
+    try {
+      review = await this.prisma.review.create({
+        data: {
+          rideId,
+          passengerId: userId,
+          driverId: ride.driverId,
+          rating: dto.rating,
+          comment: dto.comment?.trim() || null,
+        },
+        include: this.include(),
+      });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new BadRequestException('Essa corrida já foi avaliada');
+      }
+      throw err;
+    }
 
     return this.toResponse(review);
   }

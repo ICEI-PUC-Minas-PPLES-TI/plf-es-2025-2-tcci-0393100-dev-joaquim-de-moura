@@ -17,7 +17,6 @@ export const DRIVER_ACTIVE_RIDE_STATUSES: RideStatus[] = [
 ];
 
 const allowedTransitions: Record<RideStatus, RideStatus[]> = {
-  [RideStatus.REQUESTED]: [RideStatus.PENDING_DRIVER, RideStatus.CANCELED],
   [RideStatus.PENDING_DRIVER]: [RideStatus.ACCEPTED, RideStatus.CANCELED],
   [RideStatus.ACCEPTED]: [RideStatus.DRIVER_ARRIVING, RideStatus.CANCELED],
   [RideStatus.DRIVER_ARRIVING]: [RideStatus.DRIVER_ARRIVED, RideStatus.CANCELED],

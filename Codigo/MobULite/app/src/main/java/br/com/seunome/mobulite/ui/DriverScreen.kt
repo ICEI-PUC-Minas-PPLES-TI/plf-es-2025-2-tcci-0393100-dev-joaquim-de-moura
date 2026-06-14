@@ -1694,7 +1694,7 @@ fun DriverPendingRideFloatingCard(
     onAccept: () -> Unit,
     onReject: () -> Unit
 ) {
-    val priceFmt = "R$ %.2f".format((ride.price ?: 0.0) / 100.0)
+    val priceFmt = "R$ %.2f".format((ride.price ?: 0.0) / 100.0).replace(".", ",")
     val distKm = (ride.distanceMeters ?: 0.0) / 1000.0
     val isUrgent = countdown <= 5
 
@@ -1757,7 +1757,7 @@ fun DriverPendingRideFloatingCard(
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     distanceToPickupKm?.let {
                         Surface(shape = RoundedCornerShape(100.dp), color = Color(0xFFF1F5F9)) {
-                            Text("%.1f km".format(it), modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
+                            Text("%.1f km".format(it).replace(".", ","), modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
                                 style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B))
                         }
                     }
@@ -2273,7 +2273,7 @@ private fun DriverIdleOfflineCard(
                             color = Color(0xFF16A34A)
                         )
                         Text(
-                            "R$ ${"%.2f".format(earningsToday / 100.0)} · $ridesToday ${if (ridesToday == 1) "corrida" else "corridas"}",
+                            "R$ ${"%.2f".format(earningsToday / 100.0).replace(".", ",")} · $ridesToday ${if (ridesToday == 1) "corrida" else "corridas"}",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF15803D)
@@ -2524,7 +2524,7 @@ private fun DriverIdleOnlineCard(
                             color = Color(0xFF16A34A)
                         )
                         Text(
-                            "R$ ${"%.2f".format(earningsToday / 100.0)} · $ridesToday ${if (ridesToday == 1) "corrida" else "corridas"}",
+                            "R$ ${"%.2f".format(earningsToday / 100.0).replace(".", ",")} · $ridesToday ${if (ridesToday == 1) "corrida" else "corridas"}",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF15803D)
@@ -2679,13 +2679,13 @@ private fun driverBearingTo(from: LatLng, to: LatLng): Double {
 }
 
 private fun driverFmtPrice(cents: Int?) =
-    if (cents != null && cents > 0) "R$ %.2f".format(cents / 100.0) else null
+    if (cents != null && cents > 0) "R$ %.2f".format(cents / 100.0).replace(".", ",") else null
 
 private fun driverFmtMoney(cents: Int): String =
-    "R$ ${"%.2f".format(cents / 100.0)}"
+    "R$ ${"%.2f".format(cents / 100.0).replace(".", ",")}"
 
 private fun driverFmtDist(meters: Int?) =
-    if (meters != null && meters > 0) "%.1f km".format(meters / 1000.0) else null
+    if (meters != null && meters > 0) "%.1f km".format(meters / 1000.0).replace(".", ",") else null
 
 private val driverBillingMonthLabels = listOf(
     "jan.", "fev.", "mar.", "abr.", "mai.", "jun.",
@@ -2980,7 +2980,7 @@ private fun navManeuverIcon(maneuver: String) = when {
 }
 
 private fun navFormatDistance(meters: Int) =
-    if (meters >= 1000) "%.1f km".format(meters / 1000.0) else "$meters m"
+    if (meters >= 1000) "%.1f km".format(meters / 1000.0).replace(".", ",") else "$meters m"
 
 
 // ─── Driver Report Problem Sheet ──────────────────────────────────────────────

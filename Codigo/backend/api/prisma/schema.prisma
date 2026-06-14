@@ -138,6 +138,11 @@ model Ride {
   rejections            RideRejection[]
   supportTickets        SupportTicket[]
   messages              ChatMessage[]
+
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([passengerId, createdAt])
+  @@index([driverId, status])
 }
 
 model RideAuditLog {
@@ -189,14 +194,14 @@ model SupportTicket {
 }
 
 model ChatMessage {
-  id         String    @id @default(cuid())
+  id         String     @id @default(cuid())
   rideId     String
   senderId   String
-  senderRole String    // "PASSENGER" | "DRIVER"
+  senderRole SenderRole
   content    String
-  sentAt     DateTime  @default(now())
+  sentAt     DateTime   @default(now())
   readAt     DateTime?
-  ride       Ride      @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  ride       Ride       @relation(fields: [rideId], references: [id], onDelete: Cascade)
 
   @@index([rideId, sentAt])
 }
@@ -262,12 +267,16 @@ model PricingConfig {
 enum RideStatus {
   PENDING_DRIVER
   ACCEPTED
+  DRIVER_ARRIVING
+  DRIVER_ARRIVED
   IN_PROGRESS
   FINISHED
   CANCELED
-  REQUESTED
-  DRIVER_ARRIVING
-  DRIVER_ARRIVED
+}
+
+enum SenderRole {
+  PASSENGER
+  DRIVER
 }
 
 model DriverSettlement {

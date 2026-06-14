@@ -1938,7 +1938,7 @@ private fun CouponField(
                     Text("Cupom aplicado: ${applied.code}", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = AppGreenDark)
                     val discountText = when {
                         applied.discountPercent != null -> "${applied.discountPercent}% de desconto"
-                        applied.discountCents != null -> "R$ ${"%.2f".format(applied.discountCents / 100.0)} de desconto"
+                        applied.discountCents != null -> "R$ ${"%.2f".format(applied.discountCents / 100.0).replace(".", ",")} de desconto"
                         else -> "Desconto aplicado"
                     }
                     Text(discountText, style = MaterialTheme.typography.labelSmall, color = AppGreen)

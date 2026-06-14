@@ -132,7 +132,7 @@ fun RatingScreen(
             val ride = RetrofitClient.api.getRideById(rideId)
             if (ride.hasRating) alreadyRated = true
             ride.estimatedFareCents?.let { cents ->
-                actualFare = "R$ ${"%.2f".format(cents / 100.0)}"
+                actualFare = "R$ ${"%.2f".format(cents / 100.0).replace(".", ",")}"
             }
             driverPhotoUrl = RetrofitClient.photoUrl(ride.driver?.photoUrl)
         }

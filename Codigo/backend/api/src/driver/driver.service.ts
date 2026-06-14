@@ -9,6 +9,7 @@ import { UpdateDriverProfileDto } from './dto/update-driver-profile.dto';
 import { PaymentMethod, PaymentRequestStatus, PaymentStatus, RideStatus } from '@prisma/client';
 import { RealtimeService } from '../realtime/realtime.service';
 import { buildPixPayload, makePixTxId } from '../payment/pix.util';
+import { haversineMeters } from '../common/utils/geo.util';
 import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
@@ -18,22 +19,6 @@ export class DriverService {
     private realtime: RealtimeService,
     private notification: NotificationService,
   ) {}
-
-  private haversineMeters(
-    lat1: number,
-    lng1: number,
-    lat2: number,
-    lng2: number,
-  ): number {
-    const R = 6_371_000;
-    const toRad = (value: number) => (value * Math.PI) / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
 
   async getDriverMe(userId: string) {
     const driver = await this.prisma.driverProfile.findUnique({
@@ -192,7 +177,7 @@ export class DriverService {
       .map((ride) => {
         const pickupDistanceMeters =
           driver.currentLat != null && driver.currentLng != null
-            ? this.haversineMeters(driver.currentLat, driver.currentLng, ride.originLat, ride.originLng)
+            ? haversineMeters(driver.currentLat, driver.currentLng, ride.originLat, ride.originLng)
             : null;
 
         return {

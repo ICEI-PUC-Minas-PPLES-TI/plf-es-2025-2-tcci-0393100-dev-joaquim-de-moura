@@ -726,7 +726,7 @@ private fun DriverHeroHeader(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 DHeroStatChip(value = finishedRides.toString(), label = "Corridas")
-                DHeroStatChip(value = average?.let { "%.1f ★".format(it) } ?: "-", label = "Nota")
+                DHeroStatChip(value = average?.let { "%.1f ★".format(it).replace(".", ",") } ?: "-", label = "Nota")
                 DHeroStatChip(value = acceptanceRate?.let { "$it%" } ?: "-", label = "Aceite")
                 DHeroStatChip(value = if (pixReady) "Pronto" else "Pendente", label = "Pix")
             }
@@ -796,7 +796,7 @@ private fun DriverFinancialCard(
             DStatCell(label = "Semana (bruto)", value = formatMoney(weekEarnedCents), modifier = Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            DStatCell(label = "Km rodados", value = "%.0f km".format(totalKm), modifier = Modifier.weight(1f))
+            DStatCell(label = "Km rodados", value = "%.0f km".format(totalKm).replace(".", ","), modifier = Modifier.weight(1f))
             DStatCell(label = "Canceladas", value = canceledRides.toString(), modifier = Modifier.weight(1f))
         }
     }
@@ -853,7 +853,7 @@ private fun DriverRatingSummaryCard(ratingSummary: DriverRatingSummary) {
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
-                    text = ratingSummary.average?.let { "%.1f".format(it) } ?: "-",
+                    text = ratingSummary.average?.let { "%.1f".format(it).replace(".", ",") } ?: "-",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.ExtraBold,
                     color = Slate850
@@ -1487,7 +1487,7 @@ private fun DriverHistoryRideCard(ride: DriverRideHistoryItem) {
                         }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("${formatMoney(ride.estimatedFareCents ?: 0)} • ${"%.1f".format(km)} km", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Slate850)
+                        Text("${formatMoney(ride.estimatedFareCents ?: 0)} • ${"%.1f".format(km).replace(".", ",")} km", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Slate850)
                         ride.ratingScore?.let { StarRow(score = it, compact = true) }
                     }
                 }
@@ -1585,7 +1585,7 @@ private fun approvalColor(status: String?): Color = when (status) {
     else -> Slate600
 }
 
-private fun formatMoney(cents: Int): String = "R$ ${"%.2f".format(cents / 100.0)}"
+private fun formatMoney(cents: Int): String = "R$ ${"%.2f".format(cents / 100.0).replace(".", ",")}"
 
 private fun formatDate(iso: String): String = try {
     val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())

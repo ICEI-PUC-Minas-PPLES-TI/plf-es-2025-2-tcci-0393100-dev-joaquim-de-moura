@@ -88,7 +88,7 @@ export class RealtimeService {
     this.emitToRole(UserRole.ADMIN, type, payload);
   }
 
-  private handleMessage(socket: WebSocket, raw: string) {
+  private async handleMessage(socket: WebSocket, raw: string) {
     const client = this.clients.get(socket);
     if (!client) return;
 
@@ -107,6 +107,11 @@ export class RealtimeService {
           : null;
 
       if (typeof rideId === 'string' && rideId.trim()) {
+        const allowed = await this.canSubscribeToRide(client, rideId);
+        if (!allowed) {
+          this.send(socket, 'error', { message: 'Sem permissão para acompanhar esta corrida' });
+          return;
+        }
         client.subscriptions.add(rideId);
         this.send(socket, 'ride_subscribed', { rideId });
       }
@@ -161,9 +166,23 @@ export class RealtimeService {
       role: context.role,
     });
 
-    socket.on('message', (raw) => this.handleMessage(socket, raw.toString()));
+    socket.on('message', (raw) =>
+      this.handleMessage(socket, raw.toString()).catch((error) => {
+        this.logger.warn(`Erro ao processar mensagem WS: ${String(error)}`);
+      }),
+    );
     socket.on('close', () => this.clients.delete(socket));
     socket.on('error', () => this.clients.delete(socket));
+  }
+
+  private async canSubscribeToRide(client: ClientContext, rideId: string): Promise<boolean> {
+    if (client.role === UserRole.ADMIN) return true;
+    const ride = await this.prisma.ride.findUnique({
+      where: { id: rideId },
+      select: { passengerId: true, driverId: true },
+    });
+    if (!ride) return false;
+    return ride.passengerId === client.userId || ride.driverId === client.userId;
   }
 
   private async authenticate(request: IncomingMessage): Promise<ClientContext | null> {

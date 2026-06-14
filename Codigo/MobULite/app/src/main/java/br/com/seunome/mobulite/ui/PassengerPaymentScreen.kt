@@ -114,7 +114,7 @@ fun PassengerPaymentScreen(
             ?.takeIf { it.isNotBlank() }
             ?.let { payload -> runCatching { generateQrCodeBitmap(payload, 520) }.getOrNull() }
     }
-    val fareFormatted = ride?.estimatedFareCents?.let { "R$ ${"%.2f".format(it / 100.0)}" } ?: "—"
+    val fareFormatted = ride?.estimatedFareCents?.let { "R$ ${"%.2f".format(it / 100.0).replace(".", ",")}" } ?: "—"
 
     var checkVisible by remember { mutableStateOf(false) }
     LaunchedEffect(loading) { if (!loading) { delay(80); checkVisible = true } }
@@ -228,7 +228,7 @@ fun PassengerPaymentScreen(
                                     ) {
                                         Icon(Icons.Default.DirectionsCar, null, Modifier.size(12.dp), tint = AppVioletDark)
                                         Text(
-                                            "%.1f km".format(dist / 1000.0),
+                                            "%.1f km".format(dist / 1000.0).replace(".", ","),
                                             style = MaterialTheme.typography.labelMedium,
                                             color = AppVioletDark,
                                             fontWeight = FontWeight.SemiBold

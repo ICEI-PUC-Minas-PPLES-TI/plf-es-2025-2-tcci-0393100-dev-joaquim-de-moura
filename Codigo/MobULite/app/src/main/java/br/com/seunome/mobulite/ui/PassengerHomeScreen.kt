@@ -382,11 +382,11 @@ private fun RecentRideRow(ride: RideHistoryItem, onClick: () -> Unit) {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     ride.estimatedFareCents?.let { cents ->
-                        Text("R$ ${"%.2f".format(cents / 100.0)}", style = MaterialTheme.typography.labelMedium, color = AppVioletDark, fontWeight = FontWeight.SemiBold)
+                        Text("R$ ${"%.2f".format(cents / 100.0).replace(".", ",")}", style = MaterialTheme.typography.labelMedium, color = AppVioletDark, fontWeight = FontWeight.SemiBold)
                     }
                     ride.distanceMeters?.let { m ->
                         Text("·", style = MaterialTheme.typography.bodySmall, color = Slate500)
-                        Text("%.1f km".format(m / 1000.0), style = MaterialTheme.typography.labelMedium, color = Slate500)
+                        Text("%.1f km".format(m / 1000.0).replace(".", ","), style = MaterialTheme.typography.labelMedium, color = Slate500)
                     }
                     val time = relativeTime(ride.createdAt)
                     if (time.isNotEmpty()) {

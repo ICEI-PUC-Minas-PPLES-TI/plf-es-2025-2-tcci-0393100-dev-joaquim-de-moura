@@ -136,7 +136,7 @@ private fun todayDateString(): String =
         .format(Date())
         .replaceFirstChar { it.uppercase() }
 
-private fun formatCents(cents: Int) = "R$ ${"%.2f".format(cents / 100.0)}"
+private fun formatCents(cents: Int) = "R$ ${"%.2f".format(cents / 100.0).replace(".", ",")}"
 
 // ── Main screen ────────────────────────────────────────────────────────────────
 
@@ -724,7 +724,7 @@ private fun DailyGoalCard(todayEarnedCents: Int) {
                         color = if (goalReached) AppGreen else Slate900
                     )
                 }
-                IconButton(onClick = { inputText = "%.2f".format(goalCents / 100.0); showEditDialog = true }, modifier = Modifier.size(32.dp)) {
+                IconButton(onClick = { inputText = "%.2f".format(goalCents / 100.0).replace(".", ","); showEditDialog = true }, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Filled.Edit, "Editar meta", Modifier.size(16.dp), tint = Slate500)
                 }
             }
@@ -740,7 +740,7 @@ private fun DailyGoalCard(todayEarnedCents: Int) {
             )
 
             Text(
-                "R$ ${"%.2f".format(todayEarnedCents / 100.0)} / R$ ${"%.2f".format(goalCents / 100.0)}",
+                "R$ ${"%.2f".format(todayEarnedCents / 100.0).replace(".", ",")} / R$ ${"%.2f".format(goalCents / 100.0).replace(".", ",")}",
                 style = MaterialTheme.typography.labelMedium,
                 color = if (goalReached) AppGreenDark else Slate500,
                 fontWeight = if (goalReached) FontWeight.SemiBold else FontWeight.Normal
@@ -781,7 +781,7 @@ private fun TodayStatsRow(
         StatMiniCard(
             modifier  = Modifier.weight(1f),
             label     = "Avaliação",
-            value     = if (loading) "—" else ratings?.average?.let { "★ ${"%.1f".format(it)}" } ?: "—",
+            value     = if (loading) "—" else ratings?.average?.let { "★ ${"%.1f".format(it).replace(".", ",")}" } ?: "—",
             icon      = Icons.Filled.Star,
             iconColor = RatingStarYellow
         )

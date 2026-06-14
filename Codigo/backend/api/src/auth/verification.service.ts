@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import * as nodemailer from 'nodemailer';
 import { VerificationChannel, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -472,31 +473,29 @@ export class VerificationService {
   }
 
   private async deliverEmail(to: string, subject: string, text: string) {
-    const apiKey = this.config.get<string>('SENDGRID_API_KEY');
-    const from = this.config.get<string>('SENDGRID_FROM_EMAIL');
+    const host = this.config.get<string>('SMTP_HOST');
+    const port = parseInt(this.config.get<string>('SMTP_PORT') ?? '587', 10);
+    const user = this.config.get<string>('SMTP_USER');
+    const pass = this.config.get<string>('SMTP_PASS');
+    const from = this.config.get<string>('SMTP_FROM') ?? user;
 
-    if (!apiKey || !from) {
+    if (!host || !user || !pass) {
       this.logger.warn(`[EMAIL DEV] para ${to} | ${subject} | ${text}`);
       return;
     }
 
-    const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        personalizations: [{ to: [{ email: to }] }],
-        from: { email: from },
-        subject,
-        content: [{ type: 'text/plain', value: text }],
-      }),
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
     });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      this.logger.error(`SendGrid falhou: ${res.status} ${errText}`);
+    try {
+      await transporter.sendMail({ from, to, subject, text });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Falha ao enviar e-mail para ${to}: ${message}`);
       throw new BadRequestException('Não foi possível enviar e-mail agora');
     }
   }

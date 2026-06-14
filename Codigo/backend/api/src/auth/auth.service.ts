@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -12,13 +13,17 @@ import { RegisterDto } from './dto/register.dto';
 import { DriverApprovalStatus, UserRole } from '@prisma/client';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { RegisterDriverDto } from './dto/register-driver.dto';
+import { VerificationService } from './verification.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private verification: VerificationService,
   ) {}
 
   private signToken(payload: { sub: string; role: UserRole }) {
@@ -173,6 +178,16 @@ export class AuthService {
     });
 
     const accessToken = this.signToken({ sub: user.id, role: user.role });
+
+    // Dispara e-mail de verificação em background (não bloqueia o registro)
+    const savedEmail = passengerData?.email ?? dto.email?.trim().toLowerCase();
+    if (savedEmail) {
+      this.verification.requestEmailOtp(user.id).catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        this.logger.warn(`Falha ao enviar e-mail de verificação para ${user.id}: ${msg}`);
+      });
+    }
+
     return { user, accessToken };
   }
 

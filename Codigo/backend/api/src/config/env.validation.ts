@@ -38,6 +38,17 @@ export function validateEnv(config: Environment) {
     throw new Error(`Configuração inválida: ${errors.join('; ')}`);
   }
 
+  // Variáveis de e-mail são opcionais; sem elas o envio é apenas logado no console
+  const smtpHost = asString(config, 'SMTP_HOST');
+  const smtpUser = asString(config, 'SMTP_USER');
+  const smtpPass = asString(config, 'SMTP_PASS');
+  if (!smtpHost || !smtpUser || !smtpPass) {
+    console.warn(
+      '[MobU] SMTP não configurado (SMTP_HOST, SMTP_USER, SMTP_PASS). ' +
+        'E-mails de verificação serão apenas logados no console.',
+    );
+  }
+
   return {
     ...config,
     DATABASE_URL: databaseUrl,

@@ -122,7 +122,7 @@ fun DriverPaymentChoiceCard(
                         color = Color.White.copy(alpha = 0.85f)
                     )
                     Text(
-                        "R$ %.2f".format(price),
+                        "R$ %.2f".format(price).replace(".", ","),
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White
@@ -137,7 +137,7 @@ fun DriverPaymentChoiceCard(
                             color = Color.White.copy(alpha = 0.15f)
                         ) {
                             Text(
-                                "%.1f km".format(distanceKm),
+                                "%.1f km".format(distanceKm).replace(".", ","),
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White,

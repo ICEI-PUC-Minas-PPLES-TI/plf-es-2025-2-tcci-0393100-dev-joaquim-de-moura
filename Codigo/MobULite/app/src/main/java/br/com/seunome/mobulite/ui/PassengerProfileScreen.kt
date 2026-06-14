@@ -297,7 +297,7 @@ fun PassengerProfileScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 HeroChip(Icons.Default.DirectionsCar, "$finishedCount", "Corridas", Modifier.weight(1f))
-                                HeroChip(Icons.Default.Route, "${"%.0f".format(totalKm)} km", "Percorridos", Modifier.weight(1f))
+                                HeroChip(Icons.Default.Route, "${"%.0f".format(totalKm).replace(".", ",")} km", "Percorridos", Modifier.weight(1f))
                             }
                         }
                     }
@@ -341,8 +341,8 @@ fun PassengerProfileScreen(
                         StatCell(Icons.Default.Cancel, AppRed, "$canceledCount", "Canceladas", Modifier.weight(1f))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatCell(Icons.Default.AccountBalanceWallet, AppPurple, "R$ ${"%.0f".format(totalCents / 100.0)}", "Total gasto", Modifier.weight(1f))
-                        StatCell(Icons.Default.Route, AppBlue, "${"%.1f".format(totalKm)} km", "Distância", Modifier.weight(1f))
+                        StatCell(Icons.Default.AccountBalanceWallet, AppPurple, "R$ ${"%.0f".format(totalCents / 100.0).replace(".", ",")}", "Total gasto", Modifier.weight(1f))
+                        StatCell(Icons.Default.Route, AppBlue, "${"%.1f".format(totalKm).replace(".", ",")} km", "Distância", Modifier.weight(1f))
                     }
                 }
             }
@@ -1196,7 +1196,7 @@ private fun PassengerRideCard(ride: RideHistoryItem, modifier: Modifier = Modifi
                         ride.estimatedFareCents?.let { cents ->
                             Surface(shape = RoundedCornerShape(8.dp), color = AppPurpleLight) {
                                 Text(
-                                    "R$ ${"%.2f".format(cents / 100.0)}",
+                                    "R$ ${"%.2f".format(cents / 100.0).replace(".", ",")}",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,

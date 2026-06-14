@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { RideStatus } from '@prisma/client';
 import { RideService } from './ride.service';
+import { CreateRideDto } from './dto/create-ride.dto';
 import { EstimateRideDto } from './dto/estimate-ride.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 
@@ -20,17 +21,17 @@ export class RideController {
   // Passageiro cria corrida — requer autenticação
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Req() req: any, @Body() body: any) {
+  create(@Req() req: any, @Body() dto: CreateRideDto) {
     return this.service.create({
       passengerId: req.user.userId,
-      originLat: body.originLat,
-      originLng: body.originLng,
-      destLat: body.destLat,
-      destLng: body.destLng,
-      originAddress: body.originAddress,
-      destinationAddress: body.destinationAddress,
-      paymentMethod: body.paymentMethod,
-      promoCode: body.promoCode,
+      originLat: dto.originLat,
+      originLng: dto.originLng,
+      destLat: dto.destLat,
+      destLng: dto.destLng,
+      originAddress: dto.originAddress,
+      destinationAddress: dto.destinationAddress,
+      paymentMethod: dto.paymentMethod,
+      promoCode: dto.promoCode,
     });
   }
 

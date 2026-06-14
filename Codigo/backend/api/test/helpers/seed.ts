@@ -89,7 +89,7 @@ export async function seedPassenger(
       passwordHash: PASSWORD_HASH,
       passengerProfile: {
         create: {
-          cpf: phone.replace(/\D/g, '').slice(0, 11).padEnd(11, '0'),
+          cpf: phone.replace(/\D/g, '').slice(-11).padStart(11, '0'),
           birthDate: new Date('1995-06-15'),
           termsAcceptedAt: new Date(),
           privacyAcceptedAt: new Date(),
@@ -133,6 +133,48 @@ export async function seedDriver(
           vehicleCapacity: 4,
           pixKey: phone,
           pixQrPayload: `00020101021226580014BR.GOV.BCB.PIX0136${phone}5204000053039865802BR5913MotoristaTeste6013PARA DE MINAS62140510TESTEPIX016304ABCD`,
+        },
+      },
+    },
+    include: { driverProfile: true },
+  });
+
+  return {
+    id: user.id,
+    phone,
+    password: 'Senha@123',
+    profileId: user.driverProfile!.id,
+  };
+}
+
+/**
+ * Cria um motorista QA com status PENDING (aguardando aprovação do admin).
+ */
+export async function seedPendingDriver(
+  prisma: PrismaService,
+  phone: string,
+): Promise<SeededDriver> {
+  const user = await prisma.user.create({
+    data: {
+      phone,
+      name: 'Motorista Pendente QA',
+      role: 'DRIVER',
+      passwordHash: PASSWORD_HASH,
+      driverProfile: {
+        create: {
+          approvalStatus: 'PENDING',
+          online: false,
+          available: false,
+          cnhNumber: '99999999901',
+          cnhCategory: 'B',
+          hasEar: false,
+          vehicleModel: 'Uno',
+          vehiclePlate: 'QAP0001',
+          vehicleColor: 'Branco',
+          vehicleYear: 2019,
+          vehicleCapacity: 4,
+          pixKey: phone,
+          pixQrPayload: null,
         },
       },
     },

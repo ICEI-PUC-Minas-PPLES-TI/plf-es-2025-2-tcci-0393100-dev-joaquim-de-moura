@@ -376,11 +376,43 @@ fun AdminPlaceholderScreen(onLogout: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Admin logado")
-        Button(onClick = onLogout) {
+        Surface(
+            shape = CircleShape,
+            color = AppPurpleLight,
+            modifier = Modifier.size(72.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp),
+                    tint = AppPurple
+                )
+            }
+        }
+        Spacer(Modifier.height(24.dp))
+        Text(
+            "Conta Administrativa",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = Slate900
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "O painel administrativo do MobU está disponível apenas na versão web.\n\nAcesse pelo navegador em: localhost:3001",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Slate500,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(32.dp))
+        Button(
+            onClick = onLogout,
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AppPurple)
+        ) {
             Text("Sair")
         }
     }
@@ -919,7 +951,7 @@ private fun PanelActive(
                     ) {
                         Icon(Icons.Default.Star, null, Modifier.size(11.dp), tint = Color(0xFFFFC107))
                         Text(
-                            "%.1f".format(driverInfo.averageRating),
+                            "%.1f".format(driverInfo.averageRating).replace(".", ","),
                             style = MaterialTheme.typography.labelSmall,
                             color = Slate500,
                             fontWeight = FontWeight.Medium
@@ -1097,7 +1129,7 @@ private fun PanelEstimate(
                             )
                             if (discountedCents != null) {
                                 Text(
-                                    "R$ ${"%.2f".format(originalCents / 100.0)}",
+                                    "R$ ${"%.2f".format(originalCents / 100.0).replace(".", ",")}",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Normal,
                                     color = Slate500,
@@ -1105,7 +1137,7 @@ private fun PanelEstimate(
                                 )
                             }
                             Text(
-                                "R$ ${"%.2f".format(displayPrice)}",
+                                "R$ ${"%.2f".format(displayPrice).replace(".", ",")}",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = if (discountedCents != null) AppGreen else AppPurple
@@ -1119,7 +1151,7 @@ private fun PanelEstimate(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(Icons.Default.DirectionsCar, null, Modifier.size(12.dp), tint = AppVioletDark)
-                                    Text("%.1f km".format(estimate.distanceMeters / 1000.0), style = MaterialTheme.typography.labelMedium, color = AppVioletDark)
+                                    Text("%.1f km".format(estimate.distanceMeters / 1000.0).replace(".", ","), style = MaterialTheme.typography.labelMedium, color = AppVioletDark)
                                 }
                             }
                             Surface(shape = RoundedCornerShape(50), color = AppLilacSoft) {

@@ -98,7 +98,7 @@ fun DriverPaymentQrCard(
                         color = Color.White
                     )
                     Text(
-                        "R$ %.2f".format(price),
+                        "R$ %.2f".format(price).replace(".", ","),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White
@@ -162,7 +162,7 @@ fun DriverPaymentQrCard(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(shape = RoundedCornerShape(50), color = AppPurpleLight) {
                         Text(
-                            "%.1f km".format(distanceKm),
+                            "%.1f km".format(distanceKm).replace(".", ","),
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelMedium,
                             color = AppVioletDark,

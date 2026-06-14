@@ -517,7 +517,7 @@ async function generateReportPdf({ r, from, to }: ReportPdfOptions) {
       ["Receita recebida", moneyFmt(r.receivedRevenueCents), `de ${moneyFmt(r.estimatedFinishedFareCents)} estimado`],
       ["Taxa de conclusão", `${completionRate}%`, `${finished} de ${totalRides} corridas`],
       ["Ticket médio", avgTicket, `${received} pagamentos recebidos`],
-      ["Avaliação média", r.averageRating != null ? `${r.averageRating.toFixed(1)} ★` : "—", `${r.totalReviews ?? 0} avaliações`],
+      ["Avaliação média", r.averageRating != null ? `${r.averageRating.toFixed(1).replace(".", ",")} ★` : "—", `${r.totalReviews ?? 0} avaliações`],
       ...(revenueGap != null && revenueGap > 0 ? [["Gap de receita", moneyFmt(revenueGap), "Diferença entre estimado e recebido"]] : []),
     ],
     headStyles: { fillColor: VIOLET, textColor: WHITE, fontStyle: "bold", fontSize: 8 },
@@ -1909,7 +1909,7 @@ function ReportsPanel({
           />
           <ReportKPI
             label="Avaliação média"
-            value={r?.averageRating != null ? `${r.averageRating.toFixed(1)} ★` : "—"}
+            value={r?.averageRating != null ? `${r.averageRating.toFixed(1).replace(".", ",")} ★` : "—"}
             sub={`${r?.totalReviews ?? 0} avaliação${(r?.totalReviews ?? 0) !== 1 ? "ões" : ""}`}
             highlight={
               r?.averageRating != null
@@ -2331,7 +2331,7 @@ function DriverDetailModal({
               <div className="rounded-2xl bg-amber-50 px-3 py-3 text-center">
                 <p className="text-xs font-bold text-amber-400">Avaliação</p>
                 <p className="mt-0.5 text-xl font-black text-amber-600">
-                  {driver.averageRating != null ? `${driver.averageRating.toFixed(1)} ★` : "—"}
+                  {driver.averageRating != null ? `${driver.averageRating.toFixed(1).replace(".", ",")} ★` : "—"}
                 </p>
               </div>
               <div className="rounded-2xl bg-slate-50 px-3 py-3 text-center">
@@ -2688,7 +2688,7 @@ function PricingPreview({ form }: { form: { baseFare: string; perKm: string; per
           </div>
         ))}
       </div>
-      {surge > 1 && <p className="mt-2 text-xs font-bold text-amber-600">Surge ×{surge.toFixed(1)} aplicado nos valores acima</p>}
+      {surge > 1 && <p className="mt-2 text-xs font-bold text-amber-600">Surge ×{surge.toFixed(1).replace(".", ",")} aplicado nos valores acima</p>}
     </div>
   );
 }
@@ -3148,7 +3148,7 @@ function TariffsPanel({
                   <button onClick={() => editRegion(region)} className="min-w-0 flex-1 text-left">
                     <p className="truncate font-black text-slate-900">{region.name}</p>
                     <p className="text-xs font-semibold text-slate-400">
-                      {region.city ?? "Cidade não informada"} · {region.radiusMeters ? `${(region.radiusMeters / 1000).toFixed(1)} km de raio` : "Raio não definido"}
+                      {region.city ?? "Cidade não informada"} · {region.radiusMeters ? `${(region.radiusMeters / 1000).toFixed(1).replace(".", ",")} km de raio` : "Raio não definido"}
                     </p>
                   </button>
                   <div className="flex items-center gap-2">
@@ -3198,7 +3198,7 @@ function TariffsPanel({
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-sm font-black text-slate-600">Raio de atendimento</span>
                     <span className="rounded-xl bg-white px-3 py-1 text-sm font-black text-violet-700 shadow-sm">
-                      {(regionForm.radiusMeters / 1000).toFixed(1)} km
+                      {(regionForm.radiusMeters / 1000).toFixed(1).replace(".", ",")} km
                     </span>
                   </div>
                   <input
@@ -4138,7 +4138,7 @@ function FinancialPanel({
 
   const openSettle = (row: DriverFinancialRow) => {
     setSettleTarget(row);
-    setAmount(row.balanceCents > 0 ? (row.balanceCents / 100).toFixed(2) : "");
+    setAmount(row.balanceCents > 0 ? (row.balanceCents / 100).toFixed(2).replace(".", ",") : "");
     setNotes("");
     setMethod("PIX");
     setErr("");
@@ -4749,7 +4749,7 @@ function SystemConfigPanel({
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    setLimitInput(config.DRIVER_DEBT_LIMIT_CENTS ? (parseInt(config.DRIVER_DEBT_LIMIT_CENTS) / 100).toFixed(2) : "50.00");
+    setLimitInput(config.DRIVER_DEBT_LIMIT_CENTS ? (parseInt(config.DRIVER_DEBT_LIMIT_CENTS) / 100).toFixed(2).replace(".", ",") : "50,00");
     setPixInput(config.PLATFORM_PIX_KEY ?? "");
   }, [config]);
 

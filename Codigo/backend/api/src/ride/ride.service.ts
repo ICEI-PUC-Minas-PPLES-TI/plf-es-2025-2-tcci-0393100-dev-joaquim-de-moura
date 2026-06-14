@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentMethod, PaymentStatus, RideStatus } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
+import { haversineMeters } from '../common/utils/geo.util';
 import { ConfigService } from '@nestjs/config';
 import { GoogleDirectionsService } from '../maps/google-directions.service';
 import { RealtimeService } from '../realtime/realtime.service';
@@ -22,21 +23,6 @@ export class RideService {
     private realtime: RealtimeService,
     private notification: NotificationService,
   ) {}
-
-  /** Haversine distance in metres between two lat/lng points. */
-  private haversineMeters(
-    lat1: number, lng1: number,
-    lat2: number, lng2: number,
-  ): number {
-    const R = 6_371_000;
-    const toRad = (d: number) => (d * Math.PI) / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
 
   /**
    * Throws BadRequestException when active OperationRegions exist and the
@@ -56,7 +42,7 @@ export class RideService {
 
     const inside = regions.some(
       (r) =>
-        this.haversineMeters(lat, lng, r.centerLat!, r.centerLng!) <=
+        haversineMeters(lat, lng, r.centerLat!, r.centerLng!) <=
         r.radiusMeters!,
     );
 
@@ -91,7 +77,7 @@ export class RideService {
     return drivers
       .map((driver) => ({
         ...driver,
-        pickupDistanceMeters: this.haversineMeters(
+        pickupDistanceMeters: haversineMeters(
           originLat,
           originLng,
           driver.currentLat!,
@@ -192,15 +178,24 @@ export class RideService {
       surgeMultiplier: pricing.surgeMultiplier,
     });
 
-    // Apply promo code discount if provided
+    // [KL-01 fix] Cupom: lê os valores de desconto e tenta incrementar atomicamente.
+    // O updateMany só executa se usedCount ainda estiver abaixo do limite — evita TOCTOU.
     if (data.promoCode) {
       const promo = await this.prisma.promoCode.findFirst({
         where: { code: { equals: data.promoCode, mode: 'insensitive' } },
       });
 
-      if (promo && promo.active && (promo.maxUses === null || promo.usedCount < promo.maxUses)) {
-        const notExpired = !promo.expiresAt || promo.expiresAt >= new Date();
-        if (notExpired) {
+      if (promo) {
+        const claimWhere: Prisma.PromoCodeWhereInput = { id: promo.id, active: true };
+        if (promo.maxUses !== null) claimWhere.usedCount = { lt: promo.maxUses };
+        if (promo.expiresAt !== null) claimWhere.expiresAt = { gte: new Date() };
+
+        const claimed = await this.prisma.promoCode.updateMany({
+          where: claimWhere,
+          data: { usedCount: { increment: 1 } },
+        });
+
+        if (claimed.count > 0) {
           if (promo.discountPercent != null) {
             estimatedFareCents = Math.max(
               0,
@@ -209,12 +204,6 @@ export class RideService {
           } else if (promo.discountCents != null) {
             estimatedFareCents = Math.max(0, estimatedFareCents - promo.discountCents);
           }
-
-          // Increment usedCount atomically
-          await this.prisma.promoCode.update({
-            where: { id: promo.id },
-            data: { usedCount: { increment: 1 } },
-          });
         }
       }
     }
@@ -481,6 +470,19 @@ export class RideService {
 
     if (ride.status === RideStatus.CANCELED && paymentStatus !== PaymentStatus.CANCELED) {
       throw new BadRequestException('Corrida cancelada deve manter pagamento cancelado');
+    }
+
+    // [KL-02 fix] Pagamento só pode ser registrado em corridas finalizadas
+    if (
+      (paymentStatus === PaymentStatus.RECEIVED || paymentStatus === PaymentStatus.NOT_RECEIVED) &&
+      ride.status !== RideStatus.FINISHED
+    ) {
+      throw new BadRequestException('O pagamento só pode ser registrado em corridas finalizadas');
+    }
+
+    // [KL-03 fix] Confirmação idempotente: rejeita re-confirmação para preservar timestamp original
+    if (paymentStatus === PaymentStatus.RECEIVED && ride.paymentStatus === PaymentStatus.RECEIVED) {
+      throw new BadRequestException('Pagamento já confirmado');
     }
 
     const now = new Date();

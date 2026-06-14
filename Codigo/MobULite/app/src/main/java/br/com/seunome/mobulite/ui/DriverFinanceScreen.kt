@@ -369,7 +369,7 @@ private fun QuickStatsRow(rides: Int, totalKm: Double, avgMin: Double, acceptRat
         )
         MiniStatCard(
             icon = Icons.Default.Route,
-            value = "${"%.0f".format(totalKm)} km",
+            value = "${"%.0f".format(totalKm).replace(".", ",")} km",
             label = "Distância",
             modifier = Modifier.weight(1f)
         )
@@ -383,7 +383,7 @@ private fun QuickStatsRow(rides: Int, totalKm: Double, avgMin: Double, acceptRat
         } else {
             MiniStatCard(
                 icon = Icons.Default.Timer,
-                value = "${"%.0f".format(avgMin)} min",
+                value = "${"%.0f".format(avgMin).replace(".", ",")} min",
                 label = "Média/corrida",
                 modifier = Modifier.weight(1f)
             )
@@ -834,7 +834,7 @@ private fun StatementRideCard(ride: DriverRideHistoryItem) {
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        InfoChip(Icons.Default.Route, "${"%.1f".format(km)} km")
+                        InfoChip(Icons.Default.Route, "${"%.1f".format(km).replace(".", ",")} km")
                         InfoChip(Icons.Default.Timer, "$minutes min")
                         ride.ratingScore?.let { InfoChip(Icons.Default.Star, "$it ★") }
                     }

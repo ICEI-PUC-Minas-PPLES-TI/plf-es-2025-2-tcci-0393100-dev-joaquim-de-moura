@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { RideStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class ChatService {
   private async assertParticipant(userId: string, rideId: string) {
     const ride = await this.prisma.ride.findUnique({
       where: { id: rideId },
-      select: { passengerId: true, driverId: true },
+      select: { passengerId: true, driverId: true, status: true },
     });
 
     if (!ride) throw new NotFoundException('Corrida não encontrada');
@@ -25,6 +26,17 @@ export class ChatService {
       throw new ForbiddenException(
         'Você não tem permissão para acessar o chat desta corrida',
       );
+    }
+
+    // [KL-04 fix] Chat encerrado após finalização ou cancelamento
+    const activeChatStatuses: RideStatus[] = [
+      RideStatus.ACCEPTED,
+      RideStatus.DRIVER_ARRIVING,
+      RideStatus.DRIVER_ARRIVED,
+      RideStatus.IN_PROGRESS,
+    ];
+    if (!activeChatStatuses.includes(ride.status)) {
+      throw new ForbiddenException('Chat encerrado para esta corrida');
     }
 
     return ride;

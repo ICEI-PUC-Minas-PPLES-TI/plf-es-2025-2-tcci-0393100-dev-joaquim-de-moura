@@ -1190,7 +1190,7 @@ private fun fmtWeekShort(iso: String): String = try {
 } catch (_: Exception) { iso.take(10) }
 
 private fun fmtKm(meters: Int): String =
-    if (meters < 1000) "${meters} m" else "${"%.1f".format(meters / 1000.0)} km"
+    if (meters < 1000) "${meters} m" else "${"%.1f".format(meters / 1000.0).replace(".", ",")} km"
 
 private fun fmtMoney(cents: Int): String =
-    "R$ ${"%.2f".format(cents / 100.0)}"
+    "R$ ${"%.2f".format(cents / 100.0).replace(".", ",")}"

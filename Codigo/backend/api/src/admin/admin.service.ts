@@ -544,10 +544,18 @@ export class AdminService {
   }
 
   async financialSummary() {
-    const [rides, settlements, pendingRequestsCount] = await Promise.all([
-      this.prisma.ride.findMany({
+    // Usa groupBy em vez de findMany para evitar carregar todas as corridas na memória
+    const [driverAggRaw, totalsAgg, settlements, pendingRequestsCount] = await Promise.all([
+      this.prisma.ride.groupBy({
+        by: ['driverId'],
+        where: { status: RideStatus.FINISHED, driverId: { not: null } },
+        _sum: { estimatedFareCents: true, platformFeeCents: true, driverReceivableCents: true },
+        _count: { id: true },
+      }),
+      this.prisma.ride.aggregate({
         where: { status: RideStatus.FINISHED },
-        include: { driver: { select: { id: true, name: true, phone: true } } },
+        _sum: { estimatedFareCents: true, platformFeeCents: true, driverReceivableCents: true },
+        _count: { id: true },
       }),
       this.prisma.driverSettlement.findMany({
         include: {
@@ -559,10 +567,23 @@ export class AdminService {
       this.prisma.driverPaymentRequest.count({ where: { status: PaymentRequestStatus.PENDING } }),
     ]);
 
-    const totalGrossCents = rides.reduce((s, r) => s + (r.estimatedFareCents ?? 0), 0);
-    const totalPlatformFeeCents = rides.reduce((s, r) => s + (r.platformFeeCents ?? 0), 0);
-    const totalDriverReceivableCents = rides.reduce((s, r) => s + (r.driverReceivableCents ?? 0), 0);
+    const totalGrossCents = totalsAgg._sum.estimatedFareCents ?? 0;
+    const totalPlatformFeeCents = totalsAgg._sum.platformFeeCents ?? 0;
+    const totalDriverReceivableCents = totalsAgg._sum.driverReceivableCents ?? 0;
     const totalSettledCents = settlements.reduce((s, st) => s + st.amountCents, 0);
+
+    // Busca nome/telefone dos motoristas que aparecem nas corridas ou liquidações
+    const allDriverIds = [
+      ...new Set([
+        ...driverAggRaw.map((r) => r.driverId as string),
+        ...settlements.map((s) => s.driverId),
+      ]),
+    ];
+    const driverUsers = await this.prisma.user.findMany({
+      where: { id: { in: allDriverIds } },
+      select: { id: true, name: true, phone: true },
+    });
+    const driverUserMap = new Map(driverUsers.map((u) => [u.id, u]));
 
     const driverMap = new Map<string, {
       driverId: string; driverName: string | null; driverPhone: string | null;
@@ -570,28 +591,27 @@ export class AdminService {
       settledCents: number; balanceCents: number;
     }>();
 
-    for (const ride of rides) {
-      if (!ride.driverId) continue;
-      if (!driverMap.has(ride.driverId)) {
-        driverMap.set(ride.driverId, {
-          driverId: ride.driverId,
-          driverName: ride.driver?.name ?? null,
-          driverPhone: ride.driver?.phone ?? null,
-          rides: 0, grossCents: 0, feeCents: 0, receivableCents: 0,
-          settledCents: 0, balanceCents: 0,
-        });
-      }
-      const e = driverMap.get(ride.driverId)!;
-      e.rides += 1;
-      e.grossCents += ride.estimatedFareCents ?? 0;
-      e.feeCents += ride.platformFeeCents ?? 0;
-      e.receivableCents += ride.driverReceivableCents ?? 0;
+    for (const agg of driverAggRaw) {
+      const dId = agg.driverId as string;
+      const user = driverUserMap.get(dId);
+      driverMap.set(dId, {
+        driverId: dId,
+        driverName: user?.name ?? null,
+        driverPhone: user?.phone ?? null,
+        rides: agg._count.id,
+        grossCents: agg._sum.estimatedFareCents ?? 0,
+        feeCents: agg._sum.platformFeeCents ?? 0,
+        receivableCents: agg._sum.driverReceivableCents ?? 0,
+        settledCents: 0,
+        balanceCents: 0,
+      });
     }
 
     for (const st of settlements) {
       if (!driverMap.has(st.driverId)) {
+        const user = driverUserMap.get(st.driverId);
         driverMap.set(st.driverId, {
-          driverId: st.driverId, driverName: st.driver?.name ?? null, driverPhone: null,
+          driverId: st.driverId, driverName: user?.name ?? null, driverPhone: user?.phone ?? null,
           rides: 0, grossCents: 0, feeCents: 0, receivableCents: 0,
           settledCents: 0, balanceCents: 0,
         });
@@ -605,7 +625,7 @@ export class AdminService {
 
     return {
       overview: {
-        totalRides: rides.length,
+        totalRides: totalsAgg._count.id,
         totalGrossCents,
         totalPlatformFeeCents,
         totalDriverReceivableCents,

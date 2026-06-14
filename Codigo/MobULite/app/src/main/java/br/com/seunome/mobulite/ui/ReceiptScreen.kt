@@ -232,7 +232,7 @@ fun ReceiptScreen(
                         ) {
                             Icon(Icons.Filled.Star, null, Modifier.size(14.dp), tint = RatingStarYellow)
                             Text(
-                                "%.1f".format(driverRating),
+                                "%.1f".format(driverRating).replace(".", ","),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White.copy(alpha = 0.85f),
                                 fontWeight = FontWeight.SemiBold

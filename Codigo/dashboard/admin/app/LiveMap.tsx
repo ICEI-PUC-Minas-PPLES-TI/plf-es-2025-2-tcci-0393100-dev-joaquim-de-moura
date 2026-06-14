@@ -93,7 +93,7 @@ export default function LiveMap({ drivers, rides }: LiveMapProps) {
             <br />
             Status: {ride.status}
             {ride.estimatedFareCents != null
-              ? `\nR$ ${(ride.estimatedFareCents / 100).toFixed(2)}`
+              ? `\nR$ ${(ride.estimatedFareCents / 100).toFixed(2).replace(".", ",")}`
               : ""}
           </Popup>
         </Marker>
